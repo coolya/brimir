@@ -1,7 +1,22 @@
 {
-  "name": "ast-playground",
-  "version": "1.0.0",
+  "name": "@coolya/brimir",
+  "author": "Kolja Dummann <kolja@hey.com>",
+  "description": "A TypeScript native library to define and work with meta models.",
+  "license": "MIT",
+  "version": "0.0.1",
   "devDependencies": {
     "typescript": "^4.7.4"
-  }
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coolya/brimir.git"
+  },
+  "bugs": {
+    "url": "https://github.com/coolya/brimir/issues"
+  },
+  "homepage": "https://github.com/coolya/brimir#readme"
 }
