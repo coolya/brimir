@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/coolya/brimir/issues"
   },
-  "homepage": "https://github.com/coolya/brimir#readme"
+  "homepage": "https://github.com/coolya/brimir#readme",
+  "dependencies": {
+    "uuid": "^8.3.2"
+  }
 }
