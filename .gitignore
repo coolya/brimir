@@ -4,3 +4,4 @@
 /yarn-error.log
 dist/
 /.idea/discord.xml
+.DS_Store

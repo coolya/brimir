@@ -3,7 +3,7 @@
   "author": "Kolja Dummann <kolja@hey.com>",
   "description": "A TypeScript native library to define and work with meta models.",
   "license": "MIT",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "devDependencies": {
     "typescript": "^4.7.4"
   },
