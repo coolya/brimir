@@ -3,3 +3,4 @@
 *.js.map
 /yarn-error.log
 dist/
+/.idea/discord.xml

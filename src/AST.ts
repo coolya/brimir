@@ -17,13 +17,26 @@ export type Reference = {
     [key: string]: Concept
 }
 
+type IfEquals<X, Y, A = X, B = never> =
+    (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2) ? A : B;
+
+type WritableKeys<T> = {
+    [P in keyof T]-?: IfEquals<{ [Q in P]: T[P] }, { -readonly [Q in P]: T[P] }, P>
+}[keyof T];
+
 export type MakeConcept<id extends string, Owned extends Own, Refs extends Reference> =
     {
-        [Property in keyof Owned]: Owned[Property]
+        get<Key extends string & keyof Owned>
+        (name: `${Key}`): Owned[Key];
+        set<Key extends string & keyof Pick<Owned, WritableKeys<Owned>>>
+        (name: `${Key}`, value: Owned[Key]): void;
+        get<Key extends string & keyof Refs>
+        (name: `${Key}`): Ref<Refs[Key]>;
+        on<Key extends string & keyof Pick<Owned, WritableKeys<Owned>>>
+        (name: `${Key}Changed`, callback: (newValue: Owned[Key]) => void): void;
+        on<Key extends string & keyof Refs>
+        (name: `${Key}Changed`, callback: (newValue: Refs[Key]) => void): void;
     }
-    & {
-    [R in keyof Refs]: Ref<Refs[R]>
-}
     & Concept
     & {
     conceptId: id
@@ -47,8 +60,8 @@ type ReferenceValues<T extends Reference> = {
 
 export function makeNode<ID extends string, T extends MakeConcept<ID, O, R>, O extends Own, R extends Reference>(owner: AstContainer, conceptId: ID, owned: O, refs: ReferenceValues<R>): T {
     let node = {
-        ...owned,
-        ...refs,
+        owned,
+        refs,
         conceptId,
         ref() {
             return new RefImpl<T>(owner, this)
@@ -120,6 +133,7 @@ class RefImpl<T extends Concept> implements Ref<T> {
 
 export interface AstContainer {
     getNode(id: string): Promise<Concept>
+
     addNode(node: Concept): void
 }
 
