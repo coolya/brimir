@@ -3,14 +3,15 @@
   "author": "Kolja Dummann <kolja@hey.com>",
   "description": "A TypeScript native library to define and work with meta models.",
   "license": "MIT",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "devDependencies": {
     "typescript": "^4.7.4"
   },
-  "main": "index.js",
+  "main": "dist/AST.js",
+  "types": "dist/AST.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": " exit 0" 
+    "test": " exit 0"
   },
   "repository": {
     "type": "git",
