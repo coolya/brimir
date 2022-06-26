@@ -8,7 +8,7 @@ export class Concept {
 
 
 type Own = {
-    [key: string]: string | number | boolean | Concept | Concept[]
+    [key: string]: string | number | boolean | Concept | Concept[] | undefined
 }
 
 type ConceptId = "conceptId"
@@ -74,7 +74,7 @@ export function makeNodeWithId<ID extends string, T extends MakeConcept<ID, O, R
 interface Ref<T extends Concept> {
     value(): Promise<T>
 
-    set(value: T)
+    set(value: T): void
 }
 
 class RefImpl<T extends Concept> implements Ref<T> {
@@ -120,7 +120,7 @@ class RefImpl<T extends Concept> implements Ref<T> {
 
 export interface AstContainer {
     getNode(id: string): Promise<Concept>
-    addNode(node: Concept)
+    addNode(node: Concept): void
 }
 
 
