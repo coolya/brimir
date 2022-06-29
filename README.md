@@ -102,7 +102,7 @@ n.get("optionalReference").value().then(c => c?.get("name").length)
 ## Visiting the AST
 
 The conceptId becomes important when we want to inspect the AST. By encoding the conceptId as a type we can use it inside
-a `swith` statement and get typesafe access to the AST. The set of available concepts is encoded as a union type.
+a `switch` statement and get typesafe access to the AST. The set of available concepts is encoded as a union type.
 
 ```typescript
 import { MakeConcept } from "brimir";
