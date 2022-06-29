@@ -95,8 +95,18 @@ type MyErrorConcept = MakeConcept<MyErrorConceptId, {}, { primitive: string  }> 
 let n : MyOtherConcept = undefined
 
 n.get("reference").value().then(c => c.get("name").length)
+
+// or using await
+let v = await n.get("reference").value()
+
 n.get("optionalReference").value().then(c => c?.get("name").length)
 
+// or using await
+let vOpt = await n.get("optionalReference").value()
+
+if(vOpt) {
+    vOpt.get("name").length
+}
 ```
 
 ## Visiting the AST
