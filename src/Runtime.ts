@@ -39,7 +39,7 @@ class RefImpl<T extends Concept> implements Ref<T> {
     }
 
     toJSON() {
-        return {target: this._targetId}
+        return {_targetId: this._targetId}
     }
 }
 
@@ -79,7 +79,7 @@ export class NodeImpl extends Concept {
     }
 
     toJSON() {
-
+        return {conceptId: this.conceptId, nodeId: this.nodeId, owned: this.owned, refs: this.refs}
     }
 }
 
@@ -92,7 +92,7 @@ export function makeNode<ID extends string, T extends MakeConcept<ID, O, R>, O e
 
     const p = new Proxy(node, {
         get(target: NodeImpl, p: string | symbol): any {
-            if(p in target) {
+            if (p in target) {
                 return target[p]
             }
             return target.get(p.toString())
