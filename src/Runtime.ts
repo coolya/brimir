@@ -49,6 +49,7 @@ export class NodeImpl extends Concept {
     override nodeId: string
     readonly owned: any
     readonly refs: any
+    handlers: Array<{ prop: string, handler: (source: any, data: any) => void }> = [];
 
     constructor(owner: AstContainer, conceptId: string, nodeId: string, owned: any, refs: any) {
         super()
@@ -68,10 +69,15 @@ export class NodeImpl extends Concept {
 
     set(name: string, value: any) {
         this.owned[name] = value
+        this.#trigger(`${name}Changed`, value)
     }
 
-    on(name: string, callback: (newValue: any) => void) {
+    #trigger(prop: string, propValue: any): void {
+        this.handlers.slice(0).filter(h => h.prop === prop).map(h => h.handler(this, propValue))
+    }
 
+    on(name: string, callback: (source: any, newValue: any) => void) {
+        this.handlers.push({prop: name, handler: callback})
     }
 
     ref(): Ref<NodeImpl> {
@@ -88,12 +94,26 @@ type ReferenceValues<T extends Reference> = {
 }
 
 export function makeNode<ID extends string, T extends MakeConcept<ID, O, R>, O extends Own, R extends Reference>(owner: AstContainer, conceptId: ID, owned: O, refs: ReferenceValues<R>): T {
-    const node = new NodeImpl(owner, conceptId, uuidv4(), owned, refs)
+    return makeNodeWithId(owner, conceptId, uuidv4(), owned, refs)
+}
 
-    const p = new Proxy(node, {
+export function makeNodeWithId<ID extends string, T extends MakeConcept<ID, O, R>, O extends Own, R extends Reference>(owner: AstContainer, conceptId: ID, nodeId: string, owned: O, refs: ReferenceValues<R>): T {
+    const node = new NodeImpl(owner, conceptId, nodeId, owned, refs)
+
+    const proxy = new Proxy(node, {
         get(target: NodeImpl, p: string | symbol): any {
             if (p in target) {
-                return target[p]
+
+                // on needs special handling because we need to inject the proxy instead of the storage node.
+                if(p === "on") {
+                    return function (name: string, callback: (source: any, newValue: any) => void) {
+                        target.on(name, function (source: any, newValue: any) {
+                            callback(proxy, newValue)
+                        })
+                    }
+                } else {
+                    return target[p]
+                }
             }
             return target.get(p.toString())
         },
@@ -104,17 +124,5 @@ export function makeNode<ID extends string, T extends MakeConcept<ID, O, R>, O e
     })
 
     owner.addNode(node)
-    return p as unknown as T
-}
-
-export function makeNodeWithId<ID extends string, T extends MakeConcept<ID, O, R>, O extends Own, R extends Reference>(owner: AstContainer, conceptId: ID, nodeId: string, owned: O, refs: ReferenceValues<R>): T {
-    return {
-        ...owned,
-        ...refs,
-        conceptId,
-        ref() {
-            return new RefImpl<T>(owner, this)
-        },
-        nodeId: nodeId
-    } as unknown as T
+    return proxy as unknown as T
 }

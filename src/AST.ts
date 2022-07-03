@@ -34,9 +34,9 @@ export type MakeConcept<id extends string, Owned extends Own, Refs extends Refer
         get<Key extends string & keyof Refs>
         (name: `${Key}`): Ref<Refs[Key]>;
         on<Key extends string & keyof Pick<Owned, WritableKeys<Owned>>>
-        (name: `${Key}Changed`, callback: (newValue: Owned[Key]) => void): void;
+        (name: `${Key}Changed`, callback: (source: MakeConcept<id, Owned, Refs>, newValue: Owned[Key]) => void): void;
         on<Key extends string & keyof Refs>
-        (name: `${Key}Changed`, callback: (newValue: Refs[Key]) => void): void;
+        (name: `${Key}Changed`, callback: (source: MakeConcept<id, Owned, Refs>, newValue: Refs[Key]) => void): void;
     }
     & Concept
     & {

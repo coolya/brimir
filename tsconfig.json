@@ -3,7 +3,8 @@
     "strictNullChecks": true,
     "noImplicitOverride": true,
     "declaration": true,
-
+    "target": "es6",
+    "moduleResolution": "Node",
     "sourceMap": true,
       "lib": [
         "es2015",
