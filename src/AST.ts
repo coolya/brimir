@@ -13,7 +13,7 @@ export type Concept<Id extends string, P extends Props> = {
 	conceptId: Id
 	superConcept: Concept<string, any> | undefined
 	isSubConceptOf<OtherId extends string, OtherProps extends P>(c: Concept<OtherId, OtherProps>): boolean
-	extendWith<ExId extends string, ExProps extends Props>(id: ExId): Concept<ExId, P & ExProps>
+	extendWith<ExId extends string, ExProps extends Props>(id: ExId): Concept<ExId & Id, P & ExProps>
 	nodeType: AstNode<Concept<Id, P>, P>
 	referenceType: Ref<AstNode<Concept<Id, P>, P>>
 }
