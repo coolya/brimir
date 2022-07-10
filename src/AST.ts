@@ -20,7 +20,10 @@ export type Concept<Id extends string, P extends Props> = {
 
 
 export type AstNode<C extends Concept<string, P>, P extends Props> = {
-	get<Key extends string & keyof P>(name: `${Key}`): P[Key]; set<Key extends string & keyof Pick<P, WritableKeys<P>>>(name: `${Key}`, value: P[Key]): void; on<Key extends string & keyof Pick<P, WritableKeys<P>>>(name: `${Key}Changed`, callback: (source: AstNode<C, P>, newValue: P[Key], oldValue: P[Key]) => void): void; concept: C
+	get<Key extends string & keyof P>(name: `${Key}`): P[Key]
+	set<Key extends string & keyof Pick<P, WritableKeys<P>>>(name: `${Key}`, value: P[Key]): void 
+	on<Key extends string & keyof Pick<P, WritableKeys<P>>>(name: `${Key}Changed`, callback: (source: AstNode<C, P>, newValue: P[Key], oldValue: P[Key]) => void): void 
+	concept: C
 	ref(): Ref<AstNode<C, P>>
 	nodeId: string
 }
