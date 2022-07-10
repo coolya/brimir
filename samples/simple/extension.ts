@@ -1,4 +1,5 @@
-import {castConcept, MakeConcept, MakeConceptExtension} from "../../src/AST";
+import {castConcept, MakeConcept, MakeConceptExtension, Concept, isInstanceOf} from "../../src/AST";
+
 
 type MyConceptId = "my.concept"
 type MyConcept = MakeConcept<MyConceptId, { name: string }, {}>
@@ -13,3 +14,8 @@ n.get("name")
 
 
 let m : MyConcept = castConcept(n)
+
+let c : Concept = m
+
+if(isInstanceOf<MyConcept>("my.concept", c)) {
+}

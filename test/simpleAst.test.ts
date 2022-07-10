@@ -1,42 +1,46 @@
-import {MakeConcept, AstContainer, Concept} from "../src";
+import {AstContainer, AstNode, makeConcept} from "../src";
 import {makeNode} from "../src";
-import {expect} from "chai";
+import {expect} from "chai"
 import {it} from "mocha";
 
 type MySimpleConceptId = "my.simple.concept"
-type MySimpleConcept = MakeConcept<MySimpleConceptId, { name: string }, {}>
+const MySimpleConcept = makeConcept<MySimpleConceptId, { name: string }>("my.simple.concept")
 
 const container: AstContainer = new class implements AstContainer {
-    addNode(node: Concept) {
+    addNode(node: AstNode<any, any>): void {
     }
 
-    getNode(id: string): Promise<Concept> {
-        throw new Error("Method not implemented.");
+    getNode(id: string): Promise<AstNode<any, any>> {
+        throw Error("Method not implemented")
     }
+
 }
 
 describe("simple node", function () {
-    const n = makeNode(container, "my.simple.concept", {name: "John"}, {})
+    const n = makeNode(MySimpleConcept,  {name: "John"})
     it("access name", function () {
-        expect(n.name).equal("John")
+        expect(n.get("name")).equal("John")
     });
 
     it("set name", function () {
-        n.name = "Jane"
-        expect(n.name).equal("Jane")
+        n.set("name", "Jane")
+        expect(n.get("name")).equal("Jane")
     });
     it("notification works", function () {
         let called = false
-        n.on("nameChanged", function (source, newValue) {
+        n.on("nameChanged", function (source, newValue, oldValue) {
             expect(source.nodeId).equal(n.nodeId)
             expect(newValue).equal("Johny")
-            expect(source.name).equal("Johny")
+            expect(source.get("name")).equal("Johny")
+            expect(source).equal(n)
             called = true
         })
-        n.name = "Johny"
+        n.set("name","Johny")
         expect(called).equal(true)
     })
 });
+
+
 
 
 

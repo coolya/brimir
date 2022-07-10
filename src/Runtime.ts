@@ -1,8 +1,8 @@
 import {v4 as uuidv4} from 'uuid';
-import {AstContainer, Concept, MakeConcept, Own, Ref, Reference} from "./AST";
+import {AstContainer, AstNode, Concept, Props, Ref} from "./AST";
 
 
-class RefImpl<T extends Concept> implements Ref<T> {
+class RefImpl<T extends AstNode<any, any>> implements Ref<T> {
     _value?: T
     _targetId: string
     _owner: AstContainer
@@ -42,6 +42,92 @@ class RefImpl<T extends Concept> implements Ref<T> {
         return {_targetId: this._targetId}
     }
 }
+
+export function isInstanceOf<P extends Props, Id extends string>(c: Concept<Id, P>, node: AstNode<Concept<string, any>, Props>): node is AstNode<Concept<Id, P>, P> {
+    return true
+}
+
+export class BaseNode {
+    concept: Concept<string, any>
+    #owner: AstContainer
+    #data: any
+    nodeId: string
+    #listeners: Array<{ prop: string, callback: (node: BaseNode, newValue: any, oldValue: any) => void }> = []
+
+    constructor(c: Concept<string, any>, nodeId: string, data: any) {
+        this.nodeId = nodeId
+        this.#data = data
+    }
+
+    get(name: string): any {
+        return this.#data[name]
+    }
+
+    set(name: string, value: any) {
+        let oldValue = this.#data[name]
+        this.#data[name] = value
+        this.#trigger(name, oldValue, value)
+    }
+
+    on(prop: string, callback: (node: AstNode<Concept<string, any>, any>, newValue: any, oldValue: any) => void) {
+        this.#listeners.push({prop: prop, callback: callback})
+    }
+
+    #trigger(prop: string, oldValue: any, newValue: any) {
+        this.#listeners.slice(0).filter(x => x.prop === `${prop}Changed`).forEach(x => {
+            x.callback(this, newValue, oldValue)
+        })
+    }
+
+    ref() {
+        return new RefImpl(this.#owner, this)
+    }
+}
+
+class NodeImpl<Id extends string, P extends Props> extends BaseNode {
+    override concept: Concept<Id, P>
+
+    constructor(c: Concept<Id, P>, nodeId: string, data: P) {
+        super(c, nodeId, data);
+    }
+
+    override on(prop: string, callback: (node: AstNode<Concept<Id, P>, P>, newValue: any, oldValue: any) => void) {
+        super.on(prop, callback)
+    }
+}
+
+class RuntimeConcept<Id extends string, P extends Props> {
+    conceptId: Id
+    superConcept: RuntimeConcept<string, any> | undefined
+
+    constructor(id: Id, superConcept: RuntimeConcept<string, any> | undefined) {
+        this.conceptId = id
+        this.superConcept = superConcept
+    }
+
+    isSubConceptOf<OtherId extends string, OtherProps extends P>(other: Concept<OtherId, OtherProps>): boolean {
+        return true
+    }
+
+    extendWith<ExId extends string, ExProps extends Props>(id: ExId): Concept<ExId, P & ExProps> {
+        return new RuntimeConcept(id, this)
+    }
+
+    declare nodeType
+    declare referenceType
+}
+
+export function makeConcept<Id extends string, P extends Props>(id: Id): Concept<Id, P> {
+    return new RuntimeConcept(id, undefined) as Concept<Id, P>
+}
+
+export function makeNode<Id extends string, P extends Props>(c: Concept<Id, P>, data: P): AstNode<Concept<Id, P>, P> {
+    return new NodeImpl(c, uuidv4(), data)
+}
+
+
+/*
+
 
 export class NodeImpl extends Concept {
     override conceptId: string
@@ -125,4 +211,4 @@ export function makeNodeWithId<ID extends string, T extends MakeConcept<ID, O, R
 
     owner.addNode(node)
     return proxy as unknown as T
-}
+}*/

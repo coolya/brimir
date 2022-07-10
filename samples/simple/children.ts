@@ -1,20 +1,14 @@
-import {MakeConcept} from "../../src/AST";
+import {makeConcept} from "../../src";
 
 type MyConceptId = "my.concept"
-type MyConcept = MakeConcept<MyConceptId, { name: string }, {}>
+const MyConcept = makeConcept<MyConceptId, { name: string }>("my.concept")
 
 type MyOtherConceptId = "my.other.concept"
-type MyOtherConcept = MakeConcept<MyOtherConceptId,
-    { child: MyConcept, children: MyConcept[], optional?: MyConcept },
-    {}>
+const MyOtherConcept = makeConcept<MyOtherConceptId,
+    { child: typeof MyConcept.nodeType, children: Array<typeof MyConcept.nodeType>, optional?: typeof MyConcept.nodeType}
+    >("my.other.concept")
 
-let n: MyOtherConcept = undefined
-
-// access via properties
-
-const nameLength = n.child.name.length
-const allNamesSum = n.children.reduce((acc, c) => acc + c.name.length, 0)
-const optionalNameLength = n.optional?.name.length
+let n: typeof MyOtherConcept.nodeType = undefined
 
 // access via type safe getters and setters
 

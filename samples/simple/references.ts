@@ -1,32 +1,28 @@
-import {MakeConcept} from "../../src/AST";
+import {makeConcept} from "../../src";
 
 
 type MyConceptId = "my.concept"
-type MyConcept = MakeConcept<MyConceptId, { name: string }, {}>
+const MyConcept = makeConcept<MyConceptId, { name: string }>("my.concept")
 
 type MyOtherConceptId = "my.other.concept"
-type MyOtherConcept = MakeConcept<MyOtherConceptId, {}, { reference: MyConcept, optionalReference?: MyConcept }>
+const MyOtherConcept = makeConcept<MyOtherConceptId, { reference: typeof MyConcept.referenceType, optionalReference?: typeof MyConcept.referenceType }>("my.other.concept")
 
 type MyErrorConceptId = "my.error.concept"
-type MyErrorConcept = MakeConcept<MyErrorConceptId, {}, { references: MyConcept[]  }> //error, no arrays are allowed
+const MyErrorConcept = makeConcept<MyErrorConceptId, { references: Array<typeof MyConcept.referenceType> }>("my.error.concept") //error, no arrays are allowed
 
-type MyErrorConcept = MakeConcept<MyErrorConceptId, {}, { primitive: string  }> //error, primitives are not allowed
-
-let n : MyOtherConcept = undefined
+let n: typeof MyOtherConcept.nodeType = undefined
 
 n.get("reference").value().then(c => c.get("name").length)
-n.reference.value().then(c => c.get("name").length)
+
 
 // or using await
 let v = await n.get("reference").value()
-let v2 = await n.reference.value()
 
-n.get("optionalReference").value().then(c => c?.get("name").length)
+n.get("optionalReference")?.value().then(c => c?.get("name").length)
 
 // or using await
-let vOpt = await n.get("optionalReference").value()
-let vOpt2 = await n.optionalReference?.value()
+let vOpt = await n.get("optionalReference")?.value()
 
-if(vOpt) {
+if (vOpt) {
     vOpt.get("name").length
 }
