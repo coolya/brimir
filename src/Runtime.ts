@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { AstContainer, AstNode, Concept, Props, Ref } from "./AST";
 
 
-class RefImpl<T extends AstNode<any, any>> implements Ref<T> {
+export class RefImpl<T extends AstNode<any, any>> implements Ref<T> {
 	_value?: T
 	_targetId: string
 	_owner: AstContainer
@@ -83,6 +83,11 @@ export class BaseNode {
 	ref() {
 		return new RefImpl(this.#owner, this)
 	}
+
+	get data() {
+		return this.#data
+	}
+
 }
 
 class NodeImpl<Id extends string, P extends Props> extends BaseNode {
@@ -130,7 +135,13 @@ export function makeConcept<Id extends string, P extends Props>(id: Id): Concept
 }
 
 export function makeNode<Id extends string, P extends Props>(c: Concept<Id, P>, data: P): AstNode<Concept<Id, P>, P> {
-	return new NodeImpl(c, uuidv4(), data)
+	return makeNodeWithId(c, uuidv4(), data)
 }
+
+export function makeNodeWithId<Id extends string, P extends Props>(c: Concept<Id, P>, nodeId: string, data: P): AstNode<Concept<Id, P>, P> {
+	return new NodeImpl(c, nodeId, data)
+}
+
+
 
 

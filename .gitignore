@@ -5,3 +5,4 @@
 dist/
 /.idea/discord.xml
 .DS_Store
+.nyc_output/
