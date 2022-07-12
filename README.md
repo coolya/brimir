@@ -142,3 +142,52 @@ function visit(node: AstNode<any, any>) {
 	}
 }
 ```
+
+## Serializing the AST
+
+Brimir ships with basic support for JSON serialization and deserialization of an AST. 
+
+Serialization works straight forward with the `astToJson` which returns a string representation of the AST:
+
+```typescript
+type MySimpleConceptId = "my.simple.concept"
+const MySimpleConcept = makeConcept<MySimpleConceptId, { name: string }>("my.simple.concept")
+
+const node = makeNodeWithId(MySimpleConcept, "42", { name: "John" })
+const str = astToJson(node) // {"data":{"name":"John"},"nodeId":"42","concept":"my.simple.concept"}
+```
+Deserialization works in a similar way be requires a bit more context information. First of all a `ConceptRegistry` is required
+which needs to know all the concepts that are part of the JSON. This is used to retrieve the concepts based on their id during
+the deserialization process. Second a `AstContainer` is required. The AstContainer stores all known nodes and allows to retrieve 
+them by id. This is required when references are part of the serialized AST. If the serialized AST references nodes that aren't 
+part of the serialized JSON then the AstContainer needs to know these nodes as well.
+
+The `astFromJson` function always returns a list of nodes even if only one node is deserialized: 
+
+```typescript
+
+class Container implements AstContainer {
+	nodes: Map<string, AstNode<Concept<string, any>, any>> = new Map()
+	getNode(id: string): Promise<AstNode<any, any> | undefined> {
+		return Promise.resolve(this.nodes.get(id))
+	}
+	addNode(node: AstNode<any, any>): void {
+		this.nodes.set(node.nodeId, node)
+	}
+}
+
+const registry = new class implements ConceptRegistry {
+	data = new Map<string, Concept<string, any>>()
+	getConcept<Id extends string, P extends Props>(id: Id): Concept<Id, P> | undefined {
+		return this.data.get(id) as Concept<Id, P>
+	}
+	registerConcept<Id extends string, P extends Props>(c: Concept<Id, P>): void {
+		this.data.set(c.conceptId, c)
+	}
+}
+
+registry.registerConcept(MySimpleConcept)
+
+const container = new Container()
+const nodeS = astFromJson(`{"data":{"name":"John"},"nodeId":"42","concept":"my.simple.concept"}`, container, registry)
+```
